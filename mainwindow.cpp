@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "aboutdialog.h"
+#include "highlighter.h"
 #include "connectionsdialog.h"
 #include "sqlconnection.h"
 
@@ -10,6 +11,7 @@
 #include <QLabel>
 #include <QSettings>
 #include <QUrl>
+#include <QSqlRecord>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 
@@ -38,40 +40,31 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->Input_Logs->append(tr("# Connected to: %1").arg(currentConnection.hostname));
 
-    dbQuery("SELECT table_schema, table_name FROM information_schema.tables;");
-
-    QSqlQuery queryDatabases, queryTables;
-    queryDatabases.exec("SELECT DISTINCT table_schema FROM information_schema.tables;");
-    queryTables.exec("SELECT table_schema, table_name FROM information_schema.tables;");
-
-
+    QVector<QStringList> databaseSchema = dbQuery("SELECT `table_schema`, `table_name` FROM `information_schema`.`tables`;");
     QFont parentItemFont;
     parentItemFont.setBold(true);
 
-    QTreeWidgetItem * parentItem = new QTreeWidgetItem();
+    QTreeWidgetItem *parentItem = new QTreeWidgetItem();
     parentItem->setText(0, currentConnection.name);
     parentItem->setFont(0, parentItemFont);
 
     ui->Tree_Structure->insertTopLevelItem(0, parentItem);
 
-    while (queryDatabases.next()) {
-        QString databaseName = queryDatabases.value(0).toString();
-        QTreeWidgetItem * databaseItem = new QTreeWidgetItem();
+    foreach (const QStringList &schema, databaseSchema) {
+        QTreeWidgetItem *databaseItem = new QTreeWidgetItem();
+        QTreeWidgetItem *tableItem = new QTreeWidgetItem();
+        // TODO: check only one level (database level)
+        QList<QTreeWidgetItem *> foundDatabaseItem = ui->Tree_Structure->findItems(schema.value(0), Qt::MatchContains|Qt::MatchRecursive, 0);
 
-        databaseItem->setText(0, databaseName);
+        tableItem->setText(0, schema.value(1));
 
-        while (queryTables.next()) {
-            QString tableName = queryTables.value(1).toString();
-
-            if (databaseName == queryTables.value(0).toString()) {
-                QTreeWidgetItem * tableItem = new QTreeWidgetItem();
-                tableItem->setText(0, tableName);
-
-                databaseItem->addChild(tableItem);
-            }
+        if (foundDatabaseItem.count() == 0) {
+            databaseItem->setText(0, schema.value(0));
+            parentItem->addChild(databaseItem);
+            databaseItem->addChild(tableItem);
+        } else {
+            foundDatabaseItem.first()->addChild(tableItem);
         }
-
-        parentItem->addChild(databaseItem);
     }
 }
 
@@ -110,7 +103,9 @@ void MainWindow::prepareLayout()
     policySplitterTop.setHorizontalStretch(1);
     widgetSplitterTop->setSizePolicy(policySplitterTop);
 
-    ui->Input_Logs->setFontFamily(FIXED_FONT.toString());
+    ui->Input_Logs->setFontFamily("Consolas, Monaco, Fira Mono, Ubuntu Mono, monospace");
+    ui->Input_Logs->setFontPointSize(8);
+    new Highlighter(ui->Input_Logs->document());
 }
 
 void MainWindow::setActionTriggers()
@@ -121,17 +116,29 @@ void MainWindow::setActionTriggers()
     connect(ui->Menu_Help_MariaDB_documentation, &QAction::triggered, this, [this]{ MainWindow::openURL(URL_DOC_MYSQL); });
 }
 
-void MainWindow::dbQuery(QString query) {
-    QSqlQueryModel model;
-    QSqlQuery sqlQuery;
+QVector<QStringList> MainWindow::dbQuery(QString query)
+{
+    QSqlQuery sqlQuery(query);
+    QVector<QStringList> results;
 
-    // TODO: dokończyć
+    while (sqlQuery.next()) {
+        QSqlRecord record = sqlQuery.record();
+        QStringList tmp;
+
+        for(int i=0; i < record.count(); i++)
+        {
+            tmp << record.value(i).toString();
+        }
+
+        results.append(tmp);
+    }
 
     ui->Input_Logs->append(query);
+
+    return results;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-

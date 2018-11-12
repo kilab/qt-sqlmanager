@@ -142,7 +142,7 @@
             </size>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ActionsContextMenu</enum>
+            <enum>Qt::CustomContextMenu</enum>
            </property>
            <property name="tabKeyNavigation">
             <bool>true</bool>
@@ -393,6 +393,11 @@
    </property>
    <property name="text">
     <string>&amp;Connections</string>
+   </property>
+  </action>
+  <action name="actionDrop_database">
+   <property name="text">
+    <string>Drop database</string>
    </property>
   </action>
  </widget>

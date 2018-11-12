@@ -16,10 +16,6 @@ const QString APP_NAME = "Visual SQL";
 const QString APP_VENDOR = "Kilab";
 const QString APP_VERSION = "0.0.0";
 const QString APP_HOMEPAGE_URL = "https://visualsql.kilab.pl";
-
-// TODO: Sprawdzić, czy dobrze wybiera
-const QFont FIXED_FONT = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-
 const QString URL_DOC_MARIADB = "https://mariadb.com/kb/en/library/sql-statements-structure/";
 const QString URL_DOC_MYSQL = "https://dev.mysql.com/doc/";
 
@@ -34,6 +30,8 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+
 private:
     Ui::MainWindow *ui;
     void prepareLayout();
@@ -41,7 +39,7 @@ private:
     void openConnectionsDialog();
     void openURL(QString url);
     void setActionTriggers();
-    void dbQuery(QString query);
+    QVector<QStringList> dbQuery(QString query);
 };
 
 #endif // MAINWINDOW_H

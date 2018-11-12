@@ -29,13 +29,15 @@ SOURCES += \
         mainwindow.cpp \
     aboutdialog.cpp \
     sqlconnection.cpp \
-    connectionsdialog.cpp
+    connectionsdialog.cpp \
+    highlighter.cpp
 
 HEADERS += \
         mainwindow.h \
     aboutdialog.h \
     sqlconnection.h \
-    connectionsdialog.h
+    connectionsdialog.h \
+    highlighter.h
 
 FORMS += \
         mainwindow.ui \
