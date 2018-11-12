@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->Input_Logs->append(tr("# Connected to: %1").arg(currentConnection.hostname));
 
     QVector<QStringList> databases = dbQuery("SHOW DATABASES;");
-    QVector<QStringList> tables = dbQuery("SELECT `table_schema` FROM `information_schema`.`tables`;");
+    QVector<QStringList> databaseTables = dbQuery("SELECT `table_schema`, `table_name` FROM `information_schema`.`tables`;");
     QFont parentItemFont;
     parentItemFont.setBold(true);
 
@@ -56,13 +56,12 @@ MainWindow::MainWindow(QWidget *parent) :
         parentItem->addChild(databaseItem);
     }
 
-    foreach (const QStringList &schema, tables) {
+    foreach (const QStringList &schema, databaseTables) {
         QTreeWidgetItem *tableItem = new QTreeWidgetItem();
         // TODO: check only one level (database level)
         QList<QTreeWidgetItem *> foundDatabaseItem = ui->Tree_Structure->findItems(schema.value(0), Qt::MatchContains|Qt::MatchRecursive, 0);
 
         tableItem->setText(0, schema.value(1));
-
         foundDatabaseItem.first()->addChild(tableItem);
 
         dbSchema[schema.value(0)] << schema.value(1);
