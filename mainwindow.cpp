@@ -5,6 +5,7 @@
 #include "connectionsdialog.h"
 #include "sqlconnection.h"
 
+#include <QCompleter>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QFontDatabase>
@@ -60,12 +61,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
         if (foundDatabaseItem.count() == 0) {
             databaseItem->setText(0, schema.value(0));
+
             parentItem->addChild(databaseItem);
             databaseItem->addChild(tableItem);
         } else {
             foundDatabaseItem.first()->addChild(tableItem);
         }
+
+        dbSchema[schema.value(0)] << schema.value(1);
     }
+
+    QCompleter *completer = new QCompleter(dbSchema.keys());
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+
+    ui->Input_Filter->setCompleter(completer);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
 }
 
 void MainWindow::openURL(QString url)
@@ -138,7 +152,21 @@ QVector<QStringList> MainWindow::dbQuery(QString query)
     return results;
 }
 
-MainWindow::~MainWindow()
+void MainWindow::on_Input_Filter_textChanged(const QString &arg1)
 {
-    delete ui;
+    QTreeWidgetItem *hostnameItem = ui->Tree_Structure->topLevelItem(0);
+
+    if (arg1 == "") {
+        for (int i = 0; i < hostnameItem->childCount(); i++) {
+            hostnameItem->child(i)->setHidden(false);
+        }
+    } else {
+        for (int i = 0; i < hostnameItem->childCount(); i++) {
+            if (hostnameItem->child(i)->text(0).contains(arg1)) {
+                hostnameItem->child(i)->setHidden(false);
+            } else {
+                hostnameItem->child(i)->setHidden(true);
+            }
+        }
+    }
 }

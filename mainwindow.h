@@ -25,12 +25,15 @@ class MainWindow : public QMainWindow
 
 public:
     CurrentConnection currentConnection;
+    QMap<QString, QStringList> dbSchema;
     QSettings settings;
 
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
+
+    void on_Input_Filter_textChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
