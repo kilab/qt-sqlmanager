@@ -9,7 +9,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     keywordFormat.setFontWeight(QFont::Bold);
 
     QStringList keywordPatterns;
-    keywordPatterns << "\\bselect\\b" << "\\bfrom\\b" << "\\bwhere\\b"
+    keywordPatterns << "\\bshow\\b" << "\\bselect\\b" << "\\bfrom\\b" << "\\bwhere\\b"
                     << "\\binsert\\b" << "\\bupdate\\b" << "\\bdelete\\b";
 
     foreach (const QString &pattern, keywordPatterns) {
@@ -19,8 +19,14 @@ Highlighter::Highlighter(QTextDocument *parent)
     }
 
     singleLineCommentFormat.setForeground(Qt::gray);
+    singleLineCommentFormat.setFontItalic(true);
     rule.pattern = QRegularExpression("#[^\n]*");
     rule.format = singleLineCommentFormat;
+    highlightingRules.append(rule);
+
+    identifierFormat.setForeground(Qt::darkYellow);
+    rule.pattern = QRegularExpression("`[A-Za-z_]+`");
+    rule.format = identifierFormat;
     highlightingRules.append(rule);
 
     quotationFormat.setForeground(Qt::darkGreen);

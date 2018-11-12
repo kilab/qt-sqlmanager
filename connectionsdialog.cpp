@@ -42,8 +42,7 @@ ConnectionsDialog::~ConnectionsDialog()
 void ConnectionsDialog::ConnectDatabase() {
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
 
-    // TODO: czemu zawsze się łączy, nawet z błędnym porten?
-    db.setPort(3308); // WTF :/
+    db.setPort(ui->Input_Port->value());
     db.setHostName(ui->Input_Hostname->text());
     db.setUserName(ui->Input_Username->text());
     db.setPassword(ui->Input_Password->text());
@@ -52,13 +51,13 @@ void ConnectionsDialog::ConnectDatabase() {
         QMessageBox errorDialog;
         errorDialog.setIcon(QMessageBox::Critical);
         errorDialog.setText(db.lastError().databaseText());
-        errorDialog.show();
+        errorDialog.exec();
+    } else {
+        currentConnection.name = ui->Input_ConnectionName->text();
+        currentConnection.hostname = ui->Input_Hostname->text();
+
+        this->close();
     }
-
-    currentConnection.name = ui->Input_ConnectionName->text();
-    currentConnection.hostname = ui->Input_Hostname->text();
-
-    this->close();
 }
 
 /**
@@ -71,8 +70,8 @@ ConnectionValid ConnectionsDialog::CheckConnection() {
     ConnectionValid connectionValid;
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-    // TODO: czemu zawsze się łączy, nawet z błędnym porten?
-    db.setPort(3308); // WTF :/
+
+    db.setPort(ui->Input_Port->value());
     db.setHostName(ui->Input_Hostname->text());
     db.setUserName(ui->Input_Username->text());
     db.setPassword(ui->Input_Password->text());

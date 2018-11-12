@@ -33,15 +33,13 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug() << "Connection name: " << currentConnection.name;
 
     if (currentConnection.name == "") {
-        // TODO: ogarnąć zamknięcie bo żaden sposób nie działa :/
-        QApplication::exit();
-        MainWindow::close();
-        close();
+        exit(0);
     }
 
     ui->Input_Logs->append(tr("# Connected to: %1").arg(currentConnection.hostname));
 
-    QVector<QStringList> databaseSchema = dbQuery("SELECT `table_schema`, `table_name` FROM `information_schema`.`tables`;");
+    QVector<QStringList> databases = dbQuery("SHOW DATABASES;");
+    QVector<QStringList> tables = dbQuery("SELECT `table_schema` FROM `information_schema`.`tables`;");
     QFont parentItemFont;
     parentItemFont.setBold(true);
 
@@ -51,22 +49,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->Tree_Structure->insertTopLevelItem(0, parentItem);
 
-    foreach (const QStringList &schema, databaseSchema) {
+    foreach (const QStringList &database, databases) {
         QTreeWidgetItem *databaseItem = new QTreeWidgetItem();
+
+        databaseItem->setText(0, database.value(0));
+        parentItem->addChild(databaseItem);
+    }
+
+    foreach (const QStringList &schema, tables) {
         QTreeWidgetItem *tableItem = new QTreeWidgetItem();
         // TODO: check only one level (database level)
         QList<QTreeWidgetItem *> foundDatabaseItem = ui->Tree_Structure->findItems(schema.value(0), Qt::MatchContains|Qt::MatchRecursive, 0);
 
         tableItem->setText(0, schema.value(1));
 
-        if (foundDatabaseItem.count() == 0) {
-            databaseItem->setText(0, schema.value(0));
-
-            parentItem->addChild(databaseItem);
-            databaseItem->addChild(tableItem);
-        } else {
-            foundDatabaseItem.first()->addChild(tableItem);
-        }
+        foundDatabaseItem.first()->addChild(tableItem);
 
         dbSchema[schema.value(0)] << schema.value(1);
     }
@@ -80,6 +77,8 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    currentConnection.db.close();
+    QSqlDatabase::removeDatabase("QMYSQL");
 }
 
 void MainWindow::openURL(QString url)
@@ -118,7 +117,7 @@ void MainWindow::prepareLayout()
     widgetSplitterTop->setSizePolicy(policySplitterTop);
 
     ui->Input_Logs->setFontFamily("Consolas, Monaco, Fira Mono, Ubuntu Mono, monospace");
-    ui->Input_Logs->setFontPointSize(8);
+    ui->Input_Logs->setFontPointSize(10);
     new Highlighter(ui->Input_Logs->document());
 }
 
