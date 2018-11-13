@@ -38,9 +38,9 @@ private slots:
 
     void on_Button_Test_clicked();
 
-    void on_List_Connections_itemClicked(QListWidgetItem *item);
-
     void on_List_Connections_itemDoubleClicked(QListWidgetItem *item);
+
+    void on_List_Connections_itemSelectionChanged();
 
 private:
     Ui::ConnectionsDialog *ui;

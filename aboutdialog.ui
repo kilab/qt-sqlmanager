@@ -2,12 +2,15 @@
 <ui version="4.0">
  <class>AboutDialog</class>
  <widget class="QDialog" name="AboutDialog">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>500</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,19 +21,19 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>300</height>
+    <width>500</width>
+    <height>350</height>
    </size>
   </property>
   <property name="focusPolicy">
    <enum>Qt::NoFocus</enum>
   </property>
-  <property name="windowTitle">
-   <string>About</string>
-  </property>
   <property name="windowIcon">
-   <iconset theme="earthquake">
-    <normaloff>.</normaloff>.</iconset>
+   <iconset resource="assets.qrc">
+    <normaloff>:/img/img/logo.png</normaloff>:/img/img/logo.png</iconset>
+  </property>
+  <property name="toolTipDuration">
+   <number>-2</number>
   </property>
   <property name="modal">
    <bool>false</bool>
@@ -58,7 +61,7 @@
         </attribute>
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
-          <widget class="QTextEdit" name="TextBox_About">
+          <widget class="QTextBrowser" name="TextBox_About">
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
@@ -94,7 +97,7 @@ p, li { white-space: pre-wrap; }
         </attribute>
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="0" column="0">
-          <widget class="QTextEdit" name="TextBox_Libraries">
+          <widget class="QTextBrowser" name="TextBox_Libraries">
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
@@ -137,7 +140,9 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="assets.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

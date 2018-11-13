@@ -226,8 +226,16 @@ void ConnectionsDialog::on_Button_Test_clicked()
     messageDialog.exec();
 }
 
-void ConnectionsDialog::on_List_Connections_itemClicked(QListWidgetItem *item)
+void ConnectionsDialog::on_List_Connections_itemDoubleClicked(QListWidgetItem *item)
 {
+    on_List_Connections_itemSelectionChanged();
+    ConnectDatabase();
+}
+
+void ConnectionsDialog::on_List_Connections_itemSelectionChanged()
+{
+    QListWidgetItem *item = ui->List_Connections->currentItem();
+
     ui->Button_Remove->setEnabled(true);
     ui->Button_Connect->setEnabled(true);
 
@@ -237,10 +245,4 @@ void ConnectionsDialog::on_List_Connections_itemClicked(QListWidgetItem *item)
     ui->Input_Username->setText(this->settings.value("connections/" + item->text() + "/username").toString());
     ui->Input_Password->setText(this->settings.value("connections/" + item->text() + "/password").toString());
     ui->Input_Port->setValue(this->settings.value("connections/" + item->text() + "/port").toInt());
-}
-
-void ConnectionsDialog::on_List_Connections_itemDoubleClicked(QListWidgetItem *item)
-{
-    on_List_Connections_itemClicked(item);
-    ConnectDatabase();
 }

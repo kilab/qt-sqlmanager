@@ -221,7 +221,11 @@
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <widget class="QTextEdit" name="textEdit"/>
+               <widget class="QTextEdit" name="Input_CustomQuery">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::DefaultContextMenu</enum>
+                </property>
+               </widget>
                <widget class="QTableView" name="tableView"/>
               </widget>
              </item>
@@ -304,6 +308,11 @@
    <addaction name="Menu_File"/>
    <addaction name="Menu_Help"/>
   </widget>
+  <widget class="QStatusBar" name="Main_StatusBar">
+   <property name="sizeGripEnabled">
+    <bool>true</bool>
+   </property>
+  </widget>
   <widget class="QToolBar" name="Main_ToolBar">
    <property name="contextMenuPolicy">
     <enum>Qt::DefaultContextMenu</enum>
@@ -344,11 +353,6 @@
    <addaction name="Menu_Help_AboutVisual_SQL"/>
    <addaction name="Menu_File_Exit"/>
   </widget>
-  <widget class="QStatusBar" name="Main_StatusBar">
-   <property name="sizeGripEnabled">
-    <bool>true</bool>
-   </property>
-  </widget>
   <action name="Menu_File_ExecuteSQL_file">
    <property name="icon">
     <iconset theme="itmages-upload">
@@ -369,8 +373,7 @@
   </action>
   <action name="Menu_Help_AboutVisual_SQL">
    <property name="icon">
-    <iconset resource="assets.qrc">
-     <normaloff>:/img/img/logo.png</normaloff>:/img/img/logo.png</iconset>
+    <iconset theme="help-about"/>
    </property>
    <property name="text">
     <string>&amp;About Visual SQL</string>

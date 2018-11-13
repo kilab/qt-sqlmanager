@@ -16,6 +16,12 @@
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 
+/**
+ * MainWindow constructor.
+ *
+ * @brief MainWindow::MainWindow
+ * @param parent
+ */
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -28,13 +34,38 @@ MainWindow::MainWindow(QWidget *parent) :
     ConnectionsDialog connectionsDialog;
     connectionsDialog.exec();
 
-    currentConnection = connectionsDialog.currentConnection;
-
-    qDebug() << "Connection name: " << currentConnection.name;
-
-    if (currentConnection.name == "") {
+    if (connectionsDialog.currentConnection.name == "") {
         exit(0);
     }
+
+    MainWindow::connectToDatabase(connectionsDialog.currentConnection);
+
+    QCompleter *completer = new QCompleter();
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+
+    ui->Input_Filter->setCompleter(completer);
+}
+
+/**
+ * MainWindow destructor.
+ *
+ * @brief MainWindow::~MainWindow
+ */
+MainWindow::~MainWindow()
+{
+    delete ui;
+    currentConnection.db.close();
+    QSqlDatabase::removeDatabase("QMYSQL");
+}
+
+/**
+ * Connect to selected database from Connections dialog.
+ *
+ * @brief connectToDatabase
+ * @param currentConnection
+ */
+void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
+    MainWindow::setWindowTitle(currentConnection.hostname + ": --- - " + APP_NAME);
 
     ui->Input_Logs->append(tr("# Connected to: %1").arg(currentConnection.hostname));
 
@@ -66,37 +97,50 @@ MainWindow::MainWindow(QWidget *parent) :
 
         dbSchema[schema.value(0)] << schema.value(1);
     }
-
-    QCompleter *completer = new QCompleter(dbSchema.keys());
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-
-    ui->Input_Filter->setCompleter(completer);
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-    currentConnection.db.close();
-    QSqlDatabase::removeDatabase("QMYSQL");
-}
-
+/**
+ * Open given URL in system webbrowser.
+ *
+ * @brief MainWindow::openURL
+ * @param url
+ */
 void MainWindow::openURL(QString url)
 {
     QDesktopServices::openUrl(QUrl(url));
 }
 
+/**
+ * Open About dialog.
+ *
+ * @brief MainWindow::openAboutDialog
+ */
 void MainWindow::openAboutDialog()
-{   
-    AboutDialog aboutDialog;
-    aboutDialog.exec();
+{
+    AboutDialog *aboutDialog = new AboutDialog(this);
+    aboutDialog->show();
+    aboutDialog->raise();
+    aboutDialog->activateWindow();
 }
 
+/**
+ * Open Connections dialog.
+ *
+ * @brief MainWindow::openConnectionsDialog
+ */
 void MainWindow::openConnectionsDialog()
 {
     ConnectionsDialog connectionsDialog;
     connectionsDialog.exec();
+
+     MainWindow::connectToDatabase(connectionsDialog.currentConnection);;
 }
 
+/**
+ * Set layout elements attributes (sizes, fonts, highlights, etc.).
+ *
+ * @brief MainWindow::prepareLayout
+ */
 void MainWindow::prepareLayout()
 {
     QList<int> topSplitterSizes = {200, 400};
@@ -117,17 +161,31 @@ void MainWindow::prepareLayout()
 
     ui->Input_Logs->setFontFamily("Consolas, Monaco, Fira Mono, Ubuntu Mono, monospace");
     ui->Input_Logs->setFontPointSize(10);
+
     new Highlighter(ui->Input_Logs->document());
+    new Highlighter(ui->Input_CustomQuery->document());
 }
 
+/**
+ * Bind all actions to slots.
+ *
+ * @brief MainWindow::setActionTriggers
+ */
 void MainWindow::setActionTriggers()
 {
     connect(ui->Menu_Help_AboutVisual_SQL, &QAction::triggered, this, &MainWindow::openAboutDialog);
     connect(ui->Menu_File_Connections, &QAction::triggered, this, &MainWindow::openConnectionsDialog);
-    connect(ui->Menu_Help_MariaDB_documentation, &QAction::triggered, this, [this]{ MainWindow::openURL(URL_DOC_MARIADB); });
+    connect(ui->Menu_Help_MariaDB_documentation, &QAction::triggered, this, [this]{ MainWindow::openURL( URL_DOC_MARIADB); });
     connect(ui->Menu_Help_MariaDB_documentation, &QAction::triggered, this, [this]{ MainWindow::openURL(URL_DOC_MYSQL); });
 }
 
+/**
+ * Execute SQL query and return results as QVector<QStringList>.
+ *
+ * @brief MainWindow::dbQuery
+ * @param query
+ * @return
+ */
 QVector<QStringList> MainWindow::dbQuery(QString query)
 {
     QSqlQuery sqlQuery(query);
@@ -150,6 +208,12 @@ QVector<QStringList> MainWindow::dbQuery(QString query)
     return results;
 }
 
+/**
+ * Handle event when text is changed in filter input.
+ *
+ * @brief MainWindow::on_Input_Filter_textChanged
+ * @param arg1
+ */
 void MainWindow::on_Input_Filter_textChanged(const QString &arg1)
 {
     QTreeWidgetItem *hostnameItem = ui->Tree_Structure->topLevelItem(0);
@@ -166,5 +230,20 @@ void MainWindow::on_Input_Filter_textChanged(const QString &arg1)
                 hostnameItem->child(i)->setHidden(true);
             }
         }
+    }
+}
+
+/**
+ * Handle event when element on structure tree is changed.
+ *
+ * @brief MainWindow::on_Tree_Structure_itemSelectionChanged
+ */
+void MainWindow::on_Tree_Structure_itemSelectionChanged()
+{
+    QString selectedItem = ui->Tree_Structure->currentItem()->text(0);
+
+    if (selectedItem != currentConnection.hostname) {
+        currentDatabase = selectedItem;
+        MainWindow::setWindowTitle(currentConnection.hostname + ": " + selectedItem + " - " + APP_NAME);
     }
 }
