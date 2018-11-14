@@ -57,6 +57,8 @@ private:
     void setActionTriggers();
 
     QVector<QStringList> dbQuery(QString query);
+
+    QSqlQueryModel dbModel;
 };
 
 #endif // MAINWINDOW_H

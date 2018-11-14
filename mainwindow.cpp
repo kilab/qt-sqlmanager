@@ -44,6 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
     completer->setCaseSensitivity(Qt::CaseInsensitive);
 
     ui->Input_Filter->setCompleter(completer);
+    ui->DataTable->setModel(&dbModel);
+
+    dbModel.setQuery("SELECT * FROM information_schema.TABLES;");
 }
 
 /**
@@ -65,6 +68,8 @@ MainWindow::~MainWindow()
  * @param currentConnection
  */
 void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
+    this->currentConnection = currentConnection;
+
     MainWindow::setWindowTitle(currentConnection.hostname + ": --- - " + APP_NAME);
 
     ui->Input_Logs->append(tr("# Connected to: %1").arg(currentConnection.hostname));
@@ -244,6 +249,6 @@ void MainWindow::on_Tree_Structure_itemSelectionChanged()
 
     if (selectedItem != currentConnection.hostname) {
         currentDatabase = selectedItem;
-        MainWindow::setWindowTitle(currentConnection.hostname + ": " + selectedItem + " - " + APP_NAME);
+        MainWindow::setWindowTitle(currentConnection.name + ": " + selectedItem + " - " + APP_NAME);
     }
 }

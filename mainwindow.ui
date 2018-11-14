@@ -194,7 +194,7 @@
          <item>
           <widget class="QTabWidget" name="Tabs">
            <property name="currentIndex">
-            <number>2</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="Tab_Table">
             <attribute name="title">
@@ -207,7 +207,11 @@
             </attribute>
             <layout class="QGridLayout" name="gridLayout">
              <item row="0" column="0">
-              <widget class="QTableView" name="DataTable"/>
+              <widget class="QTableView" name="DataTable">
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -226,7 +230,7 @@
                  <enum>Qt::DefaultContextMenu</enum>
                 </property>
                </widget>
-               <widget class="QTableView" name="tableView"/>
+               <widget class="QTableView" name="DataTable_CustomQuery"/>
               </widget>
              </item>
             </layout>
@@ -373,7 +377,8 @@
   </action>
   <action name="Menu_Help_AboutVisual_SQL">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;About Visual SQL</string>
