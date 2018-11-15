@@ -194,7 +194,7 @@
          <item>
           <widget class="QTabWidget" name="Tabs">
            <property name="currentIndex">
-            <number>2</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="Tab_Table">
             <attribute name="title">
@@ -349,13 +349,14 @@
    </attribute>
    <addaction name="Menu_File_Connections"/>
    <addaction name="Menu_File_ExecuteSQL_file"/>
+   <addaction name="Menu_File_ExecuteQuery"/>
    <addaction name="separator"/>
    <addaction name="Menu_Help_AboutVisual_SQL"/>
    <addaction name="Menu_File_Exit"/>
   </widget>
   <action name="Menu_File_ExecuteSQL_file">
    <property name="icon">
-    <iconset theme="itmages-upload">
+    <iconset theme="fileopen">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -401,6 +402,14 @@
   <action name="actionDrop_database">
    <property name="text">
     <string>Drop database</string>
+   </property>
+  </action>
+  <action name="Menu_File_ExecuteQuery">
+   <property name="icon">
+    <iconset theme="player_play"/>
+   </property>
+   <property name="text">
+    <string>Execute query</string>
    </property>
   </action>
  </widget>

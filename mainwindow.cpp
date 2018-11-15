@@ -175,7 +175,7 @@ void MainWindow::setActionTriggers()
 {
     connect(ui->Menu_Help_AboutVisual_SQL, &QAction::triggered, this, &MainWindow::openAboutDialog);
     connect(ui->Menu_File_Connections, &QAction::triggered, this, &MainWindow::openConnectionsDialog);
-    connect(ui->Menu_Help_MariaDB_documentation, &QAction::triggered, this, [this]{ MainWindow::openURL( URL_DOC_MARIADB); });
+    connect(ui->Menu_Help_MariaDB_documentation, &QAction::triggered, this, [this]{ MainWindow::openURL(URL_DOC_MARIADB); });
     connect(ui->Menu_Help_MariaDB_documentation, &QAction::triggered, this, [this]{ MainWindow::openURL(URL_DOC_MYSQL); });
 }
 
