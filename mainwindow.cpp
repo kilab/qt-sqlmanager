@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     completer->setCaseSensitivity(Qt::CaseInsensitive);
 
     ui->Input_Filter->setCompleter(completer);
+    ui->DataTable->setModel(&dbModel);
 }
 
 /**
@@ -65,6 +66,8 @@ MainWindow::~MainWindow()
  * @param currentConnection
  */
 void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
+    this->currentConnection = currentConnection;
+
     MainWindow::setWindowTitle(currentConnection.hostname + ": --- - " + APP_NAME);
 
     ui->Input_Logs->append(tr("# Connected to: %1").arg(currentConnection.hostname));
@@ -83,6 +86,7 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
     foreach (const QStringList &database, databases) {
         QTreeWidgetItem *databaseItem = new QTreeWidgetItem();
 
+        databaseItem->setData(0, Qt::UserRole, "database");
         databaseItem->setText(0, database.value(0));
         parentItem->addChild(databaseItem);
     }
@@ -92,6 +96,7 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
         // TODO: check only one level (database level)
         QList<QTreeWidgetItem *> foundDatabaseItem = ui->Tree_Structure->findItems(schema.value(0), Qt::MatchContains|Qt::MatchRecursive, 0);
 
+        tableItem->setData(0, Qt::UserRole, "table");
         tableItem->setText(0, schema.value(1));
         foundDatabaseItem.first()->addChild(tableItem);
 
@@ -240,10 +245,19 @@ void MainWindow::on_Input_Filter_textChanged(const QString &arg1)
  */
 void MainWindow::on_Tree_Structure_itemSelectionChanged()
 {
-    QString selectedItem = ui->Tree_Structure->currentItem()->text(0);
+    QTreeWidgetItem *selectedItem = ui->Tree_Structure->currentItem();
 
-    if (selectedItem != currentConnection.hostname) {
-        currentDatabase = selectedItem;
-        MainWindow::setWindowTitle(currentConnection.hostname + ": " + selectedItem + " - " + APP_NAME);
+    if (selectedItem->data(0, Qt::UserRole) == "database") {
+        currentDatabase = selectedItem->text(0);
+        MainWindow::setWindowTitle(currentConnection.hostname + ": " + selectedItem->text(0) + " - " + APP_NAME);
+    }
+
+    if (selectedItem->data(0, Qt::UserRole) == "table") {
+        currentTable = selectedItem->text(0);
+
+        QString dataTableQuery = "SELECT * FROM `" + currentDatabase + "`.`" + currentTable + "`;";
+
+        dbModel.setQuery(dataTableQuery);
+        ui->Input_Logs->append(dataTableQuery);
     }
 }
