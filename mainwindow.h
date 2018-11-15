@@ -28,6 +28,8 @@ public:
 
     QString currentDatabase;
 
+    QString currentTable;
+
     QMap<QString, QStringList> dbSchema;
 
     QSettings settings;
