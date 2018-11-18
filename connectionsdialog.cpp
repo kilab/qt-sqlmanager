@@ -53,6 +53,7 @@ void ConnectionsDialog::ConnectDatabase() {
         errorDialog.setText(db.lastError().databaseText());
         errorDialog.exec();
     } else {
+        currentConnection.db = db;
         currentConnection.name = ui->Input_ConnectionName->text();
         currentConnection.hostname = ui->Input_Hostname->text();
 

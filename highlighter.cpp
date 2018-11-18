@@ -1,4 +1,7 @@
 #include "highlighter.h"
+#include "mysql_keywords.cpp"
+
+#include <QDebug>
 
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
@@ -9,11 +12,9 @@ Highlighter::Highlighter(QTextDocument *parent)
     keywordFormat.setFontWeight(QFont::Bold);
 
     QStringList keywordPatterns;
-    keywordPatterns << "\\bshow\\b" << "\\bselect\\b" << "\\bfrom\\b" << "\\bwhere\\b"
-                    << "\\binsert\\b" << "\\bupdate\\b" << "\\bdelete\\b";
 
-    foreach (const QString &pattern, keywordPatterns) {
-        rule.pattern = QRegularExpression(pattern, QRegularExpression::CaseInsensitiveOption);
+    foreach (const QString &pattern, keywords) {
+        rule.pattern = QRegularExpression("\\b" + pattern + "\\b", QRegularExpression::CaseInsensitiveOption);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
     }
@@ -34,6 +35,9 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = quotationFormat;
     highlightingRules.append(rule);
 
+
+    multiLineCommentFormat.setForeground(Qt::gray);
+    multiLineCommentFormat.setFontItalic(true);
     commentStartExpression = QRegularExpression("/\\*");
     commentEndExpression = QRegularExpression("\\*/");
 }
@@ -42,11 +46,13 @@ void Highlighter::highlightBlock(const QString &text)
 {
     foreach (const HighlightingRule &rule, highlightingRules) {
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
+
         while (matchIterator.hasNext()) {
             QRegularExpressionMatch match = matchIterator.next();
             setFormat(match.capturedStart(), match.capturedLength(), rule.format);
         }
     }
+
     setCurrentBlockState(0);
 
     int startIndex = 0;
@@ -57,13 +63,14 @@ void Highlighter::highlightBlock(const QString &text)
         QRegularExpressionMatch match = commentEndExpression.match(text, startIndex);
         int endIndex = match.capturedStart();
         int commentLength = 0;
+
         if (endIndex == -1) {
             setCurrentBlockState(1);
             commentLength = text.length() - startIndex;
         } else {
-            commentLength = endIndex - startIndex
-                            + match.capturedLength();
+            commentLength = endIndex - startIndex + match.capturedLength();
         }
+
         setFormat(startIndex, commentLength, multiLineCommentFormat);
         startIndex = text.indexOf(commentStartExpression, startIndex + commentLength);
     }

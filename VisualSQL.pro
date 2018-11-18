@@ -30,7 +30,8 @@ SOURCES += \
     aboutdialog.cpp \
     sqlconnection.cpp \
     connectionsdialog.cpp \
-    highlighter.cpp
+    highlighter.cpp \
+    mysql_keywords.cpp
 
 HEADERS += \
         mainwindow.h \

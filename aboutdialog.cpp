@@ -2,6 +2,8 @@
 #include "ui_aboutdialog.h"
 #include "mainwindow.h"
 
+#include <QLibraryInfo>
+
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AboutDialog)
@@ -12,7 +14,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     QString AboutBoxContent = "<img src=\":/img/img/logo.png\" style=\"float: left; margin-right: 10px;\" width=\"128\" />";
     AboutBoxContent.append("<p><font size=\"5\">" + APP_NAME + "</font></p>");
-    AboutBoxContent.append("<p>v. " + APP_VERSION + "</p>");
+    AboutBoxContent.append("<p>v. " + APP_VERSION + " (use Qt " + QLibraryInfo::version().toString() + ")</p>");
     AboutBoxContent.append("<p>Author: Paweł Balicki &lt;pawel@kilab.pl&gt;</p>");
     AboutBoxContent.append("<p>Homepage: <a href=\"" + APP_HOMEPAGE_URL + "\">" + APP_HOMEPAGE_URL + "</a></p>");
     AboutBoxContent.append("<hr />");

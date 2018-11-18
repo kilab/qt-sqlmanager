@@ -48,6 +48,8 @@ private:
 
     void connectToDatabase(CurrentConnection currentConnection);
 
+    void executeCustomQuery();
+
     void prepareLayout();
 
     void openAboutDialog();
@@ -61,6 +63,8 @@ private:
     QVector<QStringList> dbQuery(QString query);
 
     QSqlQueryModel dbModel;
+
+    QSqlQueryModel dbModelCustomQuery;
 };
 
 #endif // MAINWINDOW_H

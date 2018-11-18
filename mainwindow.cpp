@@ -12,6 +12,8 @@
 #include <QLabel>
 #include <QSettings>
 #include <QUrl>
+#include <QSortFilterProxyModel>
+#include <QSqlError>
 #include <QSqlRecord>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
@@ -44,7 +46,16 @@ MainWindow::MainWindow(QWidget *parent) :
     completer->setCaseSensitivity(Qt::CaseInsensitive);
 
     ui->Input_Filter->setCompleter(completer);
-    ui->DataTable->setModel(&dbModel);
+
+    QSortFilterProxyModel *dbSortFilterModel = new QSortFilterProxyModel(this);
+    dbSortFilterModel->setDynamicSortFilter(true);
+    dbSortFilterModel->setSourceModel(&dbModel);
+    ui->DataTable->setModel(dbSortFilterModel);
+
+    QSortFilterProxyModel *dbCustomQuerySortFilterModel = new QSortFilterProxyModel(this);
+    dbCustomQuerySortFilterModel->setDynamicSortFilter(true);
+    dbCustomQuerySortFilterModel->setSourceModel(&dbModelCustomQuery);
+    ui->DataTable_CustomQuery->setModel(dbCustomQuerySortFilterModel);
 }
 
 /**
@@ -70,7 +81,7 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
 
     MainWindow::setWindowTitle(currentConnection.hostname + ": --- - " + APP_NAME);
 
-    ui->Input_Logs->append(tr("# Connected to: %1").arg(currentConnection.hostname));
+    ui->Input_Logs->append(tr("/* Connected to: %1 */").arg(currentConnection.hostname));
 
     QVector<QStringList> databases = dbQuery("SHOW DATABASES;");
     QVector<QStringList> databaseTables = dbQuery("SELECT `table_schema`, `table_name` FROM `information_schema`.`tables`;");
@@ -82,6 +93,8 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
     parentItem->setFont(0, parentItemFont);
 
     ui->Tree_Structure->insertTopLevelItem(0, parentItem);
+
+    parentItem->setExpanded(true);
 
     foreach (const QStringList &database, databases) {
         QTreeWidgetItem *databaseItem = new QTreeWidgetItem();
@@ -101,6 +114,38 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
         foundDatabaseItem.first()->addChild(tableItem);
 
         dbSchema[schema.value(0)] << schema.value(1);
+    }
+}
+
+/**
+ * Execute query in Custom query tab.
+ *
+ * @brief MainWindow::executeCustomQuery
+ */
+void MainWindow::executeCustomQuery()
+{
+    QString query = ui->Input_CustomQuery->toPlainText().trimmed();
+
+    if (query == "") {
+        return;
+    }
+
+    if (query.endsWith(";") == false) {
+        query += ";";
+    }
+
+    QRegularExpression databaseLimitRegex("LIMIT\\s[0-9]+");
+    QRegularExpressionMatch databaseLimitMatch = databaseLimitRegex.match(query);
+
+    if (databaseLimitMatch.hasMatch() == false) {
+        query.insert(query.length() - 1, " LIMIT 1000");
+    }
+
+    dbModelCustomQuery.setQuery(query);
+    ui->Input_Logs->append(query);
+
+    if (dbModel.lastError().databaseText() != "") {
+        ui->Input_Logs->append("/* SQL error (" + dbModel.lastError().nativeErrorCode() + "): " + dbModel.lastError().databaseText() + " */");
     }
 }
 
@@ -150,9 +195,11 @@ void MainWindow::prepareLayout()
 {
     QList<int> topSplitterSizes = {200, 400};
     QList<int> mainSplitterSizes = {220, 80};
+    QList<int> customQuerySplitterSizes = {200, 600};
 
     ui->Splitter_Top->setSizes(mainSplitterSizes);
     ui->Splitter_Main->setSizes(mainSplitterSizes);
+    ui->Splitter_CustomQuery->setSizes(customQuerySplitterSizes);
 
     QWidget *widgetSplitterMain = ui->Splitter_Main->widget(0);
     QSizePolicy policySplitterMain = widgetSplitterMain->sizePolicy();
@@ -166,6 +213,14 @@ void MainWindow::prepareLayout()
 
     ui->Input_Logs->setFontFamily("Consolas, Monaco, Fira Mono, Ubuntu Mono, monospace");
     ui->Input_Logs->setFontPointSize(10);
+
+    ui->DataTable->verticalHeader()->setDefaultSectionSize(22);
+    ui->DataTable->horizontalHeader()->setStretchLastSection(true);
+    ui->DataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+
+    ui->DataTable_CustomQuery->verticalHeader()->setDefaultSectionSize(22);
+    ui->DataTable_CustomQuery->horizontalHeader()->setStretchLastSection(true);
+    ui->DataTable_CustomQuery->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
     new Highlighter(ui->Input_Logs->document());
     new Highlighter(ui->Input_CustomQuery->document());
@@ -182,6 +237,7 @@ void MainWindow::setActionTriggers()
     connect(ui->Menu_File_Connections, &QAction::triggered, this, &MainWindow::openConnectionsDialog);
     connect(ui->Menu_Help_MariaDB_documentation, &QAction::triggered, this, [this]{ MainWindow::openURL(URL_DOC_MARIADB); });
     connect(ui->Menu_Help_MariaDB_documentation, &QAction::triggered, this, [this]{ MainWindow::openURL(URL_DOC_MYSQL); });
+    connect(ui->Menu_File_ExecuteQuery, &QAction::triggered, this, &MainWindow::executeCustomQuery);
 }
 
 /**
@@ -255,7 +311,7 @@ void MainWindow::on_Tree_Structure_itemSelectionChanged()
     if (selectedItem->data(0, Qt::UserRole) == "table") {
         currentTable = selectedItem->text(0);
 
-        QString dataTableQuery = "SELECT * FROM `" + currentDatabase + "`.`" + currentTable + "`;";
+        QString dataTableQuery = "SELECT * FROM `" + currentDatabase + "`.`" + currentTable + "` LIMIT 1000;";
 
         dbModel.setQuery(dataTableQuery);
         ui->Input_Logs->append(dataTableQuery);
