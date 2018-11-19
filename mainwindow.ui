@@ -200,6 +200,107 @@
             <attribute name="title">
              <string>Table</string>
             </attribute>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <widget class="QTabWidget" name="tabWidget">
+               <property name="currentIndex">
+                <number>2</number>
+               </property>
+               <widget class="QWidget" name="Tab_Table_Structure">
+                <attribute name="title">
+                 <string>Structure</string>
+                </attribute>
+               </widget>
+               <widget class="QWidget" name="Tab_Table_Relations">
+                <attribute name="title">
+                 <string>Relation</string>
+                </attribute>
+               </widget>
+               <widget class="QWidget" name="Tab_Options">
+                <attribute name="title">
+                 <string>Options</string>
+                </attribute>
+                <layout class="QGridLayout" name="gridLayout_5">
+                 <item row="0" column="0">
+                  <layout class="QFormLayout" name="formLayout">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label">
+                     <property name="text">
+                      <string>Name:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLineEdit" name="Input_Table_Options_Name"/>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_2">
+                     <property name="text">
+                      <string>Comment:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QLineEdit" name="Input_Table_Options_Comment"/>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_3">
+                     <property name="text">
+                      <string>Engine:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QComboBox" name="Input_Table_Options_Engine">
+                     <property name="maximumSize">
+                      <size>
+                       <width>81</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="editable">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_4">
+                     <property name="text">
+                      <string>Default: collaction:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QComboBox" name="Input_Table_Options_Collaction">
+                     <property name="editable">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_5">
+                     <property name="text">
+                      <string>Auto increment:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QSpinBox" name="Input_Table_Options_AutoIncrement">
+                     <property name="maximum">
+                      <number>999999999</number>
+                     </property>
+                     <property name="value">
+                      <number>0</number>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+            </layout>
            </widget>
            <widget class="QWidget" name="Tab_Data">
             <attribute name="title">
