@@ -194,7 +194,7 @@
          <item>
           <widget class="QTabWidget" name="Tabs">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="Tab_Table">
             <attribute name="title">
@@ -252,14 +252,26 @@
                    </item>
                    <item row="2" column="1">
                     <widget class="QComboBox" name="Input_Table_Options_Engine">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="maximumSize">
                       <size>
-                       <width>81</width>
+                       <width>16777215</width>
                        <height>16777215</height>
                       </size>
                      </property>
                      <property name="editable">
                       <bool>true</bool>
+                     </property>
+                     <property name="sizeAdjustPolicy">
+                      <enum>QComboBox::AdjustToContents</enum>
+                     </property>
+                     <property name="modelColumn">
+                      <number>0</number>
                      </property>
                     </widget>
                    </item>
@@ -272,6 +284,12 @@
                    </item>
                    <item row="3" column="1">
                     <widget class="QComboBox" name="Input_Table_Options_Collaction">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="editable">
                       <bool>true</bool>
                      </property>
@@ -286,6 +304,12 @@
                    </item>
                    <item row="4" column="1">
                     <widget class="QSpinBox" name="Input_Table_Options_AutoIncrement">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="maximum">
                       <number>999999999</number>
                      </property>

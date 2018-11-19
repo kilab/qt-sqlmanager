@@ -88,6 +88,22 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
     QFont parentItemFont;
     parentItemFont.setBold(true);
 
+    QSqlQuery availableTableCollactionsQuery;
+    availableTableCollactionsQuery.exec("SELECT COLLATION_NAME FROM `information_schema`.`COLLATIONS` ORDER BY COLLATION_NAME ASC;");
+    ui->Input_Logs->append("SELECT COLLATION_NAME FROM `information_schema`.`COLLATIONS` ORDER BY COLLATION_NAME ASC;");
+
+    while (availableTableCollactionsQuery.next()) {
+        availableTableCollactions.append(availableTableCollactionsQuery.value(0).toString());
+    }
+
+    QSqlQuery availableTableEnginesQuery;
+    availableTableEnginesQuery.exec("SELECT ENGINE FROM `information_schema`.`ENGINES` ORDER BY ENGINE ASC;");
+    ui->Input_Logs->append("SELECT ENGINE FROM `information_schema`.`ENGINES` ORDER BY ENGINE ASC;");
+
+    while (availableTableEnginesQuery.next()) {
+        availableTableEngines.append(availableTableEnginesQuery.value(0).toString());
+    }
+
     QTreeWidgetItem *parentItem = new QTreeWidgetItem();
     parentItem->setText(0, currentConnection.name);
     parentItem->setFont(0, parentItemFont);
@@ -315,5 +331,8 @@ void MainWindow::on_Tree_Structure_itemSelectionChanged()
 
         dbModel.setQuery(dataTableQuery);
         ui->Input_Logs->append(dataTableQuery);
+
+        ui->Input_Table_Options_Collaction->addItems(availableTableCollactions);
+        ui->Input_Table_Options_Engine->addItems(availableTableEngines);
     }
 }

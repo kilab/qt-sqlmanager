@@ -60,6 +60,10 @@ private:
 
     void setActionTriggers();
 
+    QList<QString> availableTableEngines = {};
+
+    QList<QString> availableTableCollactions = {};
+
     QVector<QStringList> dbQuery(QString query);
 
     QSqlQueryModel dbModel;
