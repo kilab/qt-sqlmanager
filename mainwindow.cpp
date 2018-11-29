@@ -320,14 +320,17 @@ void MainWindow::on_Tree_Structure_itemSelectionChanged()
     QTreeWidgetItem *selectedItem = ui->Tree_Structure->currentItem();
 
     if (selectedItem->data(0, Qt::UserRole) == "database") {
-        currentDatabase = selectedItem->text(0);
+        currentDatabase = *new Database(selectedItem->text(0));
+        currentDatabase.setHostname(currentConnection.hostname);
+
         MainWindow::setWindowTitle(currentConnection.hostname + ": " + selectedItem->text(0) + " - " + APP_NAME);
     }
 
     if (selectedItem->data(0, Qt::UserRole) == "table") {
-        currentTable = selectedItem->text(0);
+        currentTable = *new Table(selectedItem->text(0));
+        currentTable.setDatabase(currentDatabase);
 
-        QString dataTableQuery = "SELECT * FROM `" + currentDatabase + "`.`" + currentTable + "` LIMIT 1000;";
+        QString dataTableQuery = "SELECT * FROM `" + currentDatabase.getName() + "`.`" + currentTable.getName() + "` LIMIT 1000;";
 
         dbModel.setQuery(dataTableQuery);
         ui->Input_Logs->append(dataTableQuery);

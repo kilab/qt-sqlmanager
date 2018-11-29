@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include "sqlconnection.h"
+#include "database.h"
+#include "table.h"
 
 #include <QFontDatabase>
 #include <QMainWindow>
@@ -26,9 +28,9 @@ class MainWindow : public QMainWindow
 public:
     CurrentConnection currentConnection;
 
-    QString currentDatabase;
+    Database currentDatabase;
 
-    QString currentTable;
+    Table currentTable;
 
     QMap<QString, QStringList> dbSchema;
 

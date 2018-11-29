@@ -31,14 +31,18 @@ SOURCES += \
     sqlconnection.cpp \
     connectionsdialog.cpp \
     highlighter.cpp \
-    mysql_keywords.cpp
+    mysql_keywords.cpp \
+    database.cpp \
+    table.cpp
 
 HEADERS += \
         mainwindow.h \
     aboutdialog.h \
     sqlconnection.h \
     connectionsdialog.h \
-    highlighter.h
+    highlighter.h \
+    database.h \
+    table.h
 
 FORMS += \
         mainwindow.ui \
