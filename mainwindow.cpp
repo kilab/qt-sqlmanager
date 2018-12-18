@@ -79,14 +79,12 @@ MainWindow::~MainWindow()
 void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
     this->currentConnection = currentConnection;
 
-    MainWindow::setWindowTitle(currentConnection.hostname + ": --- - " + APP_NAME);
+    MainWindow::setWindowTitle(currentConnection.name + " - " + APP_NAME);
 
     ui->Input_Logs->append(tr("/* Connected to: %1 */").arg(currentConnection.hostname));
 
     QVector<QStringList> databases = dbQuery("SHOW DATABASES;");
     QVector<QStringList> databaseTables = dbQuery("SELECT `table_schema`, `table_name` FROM `information_schema`.`tables`;");
-    QFont parentItemFont;
-    parentItemFont.setBold(true);
 
     QSqlQuery availableTableCollactionsQuery;
     availableTableCollactionsQuery.exec("SELECT COLLATION_NAME FROM `information_schema`.`COLLATIONS` ORDER BY COLLATION_NAME ASC;");
@@ -106,7 +104,7 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
 
     QTreeWidgetItem *parentItem = new QTreeWidgetItem();
     parentItem->setText(0, currentConnection.name);
-    parentItem->setFont(0, parentItemFont);
+    parentItem->setData(0, Qt::UserRole, "connection");
 
     ui->Tree_Structure->insertTopLevelItem(0, parentItem);
 
@@ -199,7 +197,7 @@ void MainWindow::openConnectionsDialog()
     ConnectionsDialog connectionsDialog;
     connectionsDialog.exec();
 
-     MainWindow::connectToDatabase(connectionsDialog.currentConnection);;
+    MainWindow::connectToDatabase(connectionsDialog.currentConnection);
 }
 
 /**
@@ -317,25 +315,139 @@ void MainWindow::on_Input_Filter_textChanged(const QString &arg1)
  */
 void MainWindow::on_Tree_Structure_itemSelectionChanged()
 {
-    QTreeWidgetItem *selectedItem = ui->Tree_Structure->currentItem();
+    qDebug() << ui->Tree_Structure->topLevelItemCount();
 
-    if (selectedItem->data(0, Qt::UserRole) == "database") {
-        currentDatabase = *new Database(selectedItem->text(0));
-        currentDatabase.setHostname(currentConnection.hostname);
+    if (ui->Tree_Structure->topLevelItemCount() == 0) {
+        this->destroy(true);
 
-        MainWindow::setWindowTitle(currentConnection.hostname + ": " + selectedItem->text(0) + " - " + APP_NAME);
+        ConnectionsDialog connectionsDialog;
+        connectionsDialog.exec();
+
+        if (connectionsDialog.currentConnection.name == "") {
+            exit(0);
+        }
+
+        MainWindow::connectToDatabase(connectionsDialog.currentConnection);
+        return;
+    } else {
+
+        QTreeWidgetItem *selectedItem = ui->Tree_Structure->currentItem();
+
+        if (selectedItem->data(0, Qt::UserRole) == "database") {
+            currentDatabase = *new Database(selectedItem->text(0));
+            currentDatabase.setHostname(currentConnection.hostname);
+
+            MainWindow::setWindowTitle(currentConnection.name + "\\" + selectedItem->text(0) + " - " + APP_NAME);
+        }
+
+        if (selectedItem->data(0, Qt::UserRole) == "table") {
+            currentTable = *new Table(selectedItem->text(0));
+            currentTable.setDatabase(currentDatabase);
+
+            QString dataTableQuery = "SELECT * FROM `" + currentDatabase.getName() + "`.`" + currentTable.getName() + "` LIMIT 1000;";
+
+            dbModel.setQuery(dataTableQuery);
+            ui->Input_Logs->append(dataTableQuery);
+
+            ui->Input_Table_Options_Collaction->addItems(availableTableCollactions);
+            ui->Input_Table_Options_Engine->addItems(availableTableEngines);
+        }
+    }
+}
+
+/**
+ * Handle event when right mouse button is clicked on tree structure item.
+ *
+ * @brief MainWindow::on_Tree_Structure_customContextMenuRequested
+ * @param pos
+ */
+void MainWindow::on_Tree_Structure_customContextMenuRequested(const QPoint &pos)
+{
+    // coś tu kurde faja nie chce działać
+    ui->Tree_Structure->viewport()->mapToGlobal(pos);
+    QTreeWidgetItem *clickedItem = ui->Tree_Structure->itemAt(pos);
+
+    qDebug() << "Klikam tutaj: " << pos.x() << pos.y();
+
+    if (!clickedItem) {
+        return;
     }
 
-    if (selectedItem->data(0, Qt::UserRole) == "table") {
-        currentTable = *new Table(selectedItem->text(0));
-        currentTable.setDatabase(currentDatabase);
+    QMenu menu(this);
 
-        QString dataTableQuery = "SELECT * FROM `" + currentDatabase.getName() + "`.`" + currentTable.getName() + "` LIMIT 1000;";
+    // TODO: not implemented actions
+    ui->TreeStructure_CreateDatabase->setDisabled(true);
+    ui->TreeStructure_CreateTable->setDisabled(true);
+    ui->TreeStructure_Export->setDisabled(true);
+    ui->TreeStructure_Refresh->setDisabled(true);
 
-        dbModel.setQuery(dataTableQuery);
-        ui->Input_Logs->append(dataTableQuery);
+    if (clickedItem->data(0, Qt::UserRole) == "connection") {
+        menu.addAction(ui->TreeStructure_CreateDatabase);
+    } else if (clickedItem->data(0, Qt::UserRole) == "database") {
+        menu.addAction(ui->TreeStructure_CreateTable);
+    } else if(clickedItem->data(0, Qt::UserRole) == "table") {
 
-        ui->Input_Table_Options_Collaction->addItems(availableTableCollactions);
-        ui->Input_Table_Options_Engine->addItems(availableTableEngines);
     }
+
+    menu.addSeparator();
+    menu.addAction(ui->TreeStructure_ExpandAll);
+    menu.addAction(ui->TreeStructure_CollapseAll);
+    menu.addAction(ui->TreeStructure_Export);
+    menu.addAction(ui->TreeStructure_Refresh);
+    menu.addAction(ui->TreeStructure_Disconnect);
+
+    menu.exec(ui->Tree_Structure->viewport()->mapToGlobal(pos));
+}
+
+/**
+ * Disconnect connection.
+ *
+ * @brief MainWindow::on_TreeStructure_Disconnect_triggered
+ */
+void MainWindow::on_TreeStructure_Disconnect_triggered()
+{
+    QVariant clickVariant = ui->TreeStructure_Disconnect->data();
+
+    // przy scrollu znajduje błędny element
+    qDebug() << clickVariant.toStringList();
+    qDebug() << "elementów przed usunięciem: " << ui->Tree_Structure->topLevelItemCount();
+    QTreeWidgetItem *clickedItem = ui->Tree_Structure->itemAt(ui->TreeStructure_Disconnect->data().toPoint());
+    qDebug() << "znaleziony item: " << clickedItem->text(0);
+    ui->Tree_Structure->removeItemWidget(clickedItem, 0);
+    delete clickedItem;
+
+    qDebug() << "elementów po usunięciu: " << ui->Tree_Structure->topLevelItemCount();
+    ui->Tree_Structure->repaint();
+
+    qDebug() << "elementów po odświeżeniu: " << ui->Tree_Structure->topLevelItemCount();
+}
+
+/**
+ * Refresh databases and tables in tree structure.
+ *
+ * @brief MainWindow::on_TreeStructure_Refresh_triggered
+ */
+void MainWindow::on_TreeStructure_Refresh_triggered()
+{
+
+}
+
+/**
+ * Expand all children elements in tree structure.
+ *
+ * @brief MainWindow::on_TreeStructure_ExpandAll_triggered
+ */
+void MainWindow::on_TreeStructure_ExpandAll_triggered()
+{
+    ui->Tree_Structure->expandAll();
+}
+
+/**
+ * Collapse all children elements in tree structure.
+ *
+ * @brief MainWindow::on_TreeStructure_CollapseAll_triggered
+ */
+void MainWindow::on_TreeStructure_CollapseAll_triggered()
+{
+    ui->Tree_Structure->collapseAll();
 }

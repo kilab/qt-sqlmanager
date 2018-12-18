@@ -134,7 +134,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QTreeWidget" name="Tree_Structure">
+          <widget class="QTreeView" name="Tree_Structure">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -168,17 +168,6 @@
            <property name="sortingEnabled">
             <bool>false</bool>
            </property>
-           <property name="columnCount">
-            <number>1</number>
-           </property>
-           <attribute name="headerVisible">
-            <bool>false</bool>
-           </attribute>
-           <column>
-            <property name="text">
-             <string>1</string>
-            </property>
-           </column>
           </widget>
          </item>
         </layout>
@@ -554,11 +543,6 @@
     <string>&amp;Connections</string>
    </property>
   </action>
-  <action name="actionDrop_database">
-   <property name="text">
-    <string>Drop database</string>
-   </property>
-  </action>
   <action name="Menu_File_ExecuteQuery">
    <property name="icon">
     <iconset theme="player_play">
@@ -569,6 +553,84 @@
    </property>
    <property name="shortcut">
     <string>F5</string>
+   </property>
+  </action>
+  <action name="TreeStructure_Disconnect">
+   <property name="icon">
+    <iconset theme="view-close">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Disconnect</string>
+   </property>
+   <property name="toolTip">
+    <string>Disconnect connection</string>
+   </property>
+  </action>
+  <action name="TreeStructure_Refresh">
+   <property name="icon">
+    <iconset theme="view-refresh">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Refresh</string>
+   </property>
+   <property name="toolTip">
+    <string>Refresh database structure</string>
+   </property>
+  </action>
+  <action name="TreeStructure_ExpandAll">
+   <property name="icon">
+    <iconset theme="zoom-in">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Expand all</string>
+   </property>
+   <property name="toolTip">
+    <string>Expand all databases</string>
+   </property>
+  </action>
+  <action name="TreeStructure_CollapseAll">
+   <property name="icon">
+    <iconset theme="zoom-out">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Collapse all</string>
+   </property>
+   <property name="toolTip">
+    <string>Collapse all databases</string>
+   </property>
+  </action>
+  <action name="TreeStructure_CreateDatabase">
+   <property name="icon">
+    <iconset theme="document-new">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Create new database</string>
+   </property>
+  </action>
+  <action name="TreeStructure_CreateTable">
+   <property name="icon">
+    <iconset theme="tab-new">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Create new table</string>
+   </property>
+   <property name="toolTip">
+    <string>Create new table</string>
+   </property>
+  </action>
+  <action name="TreeStructure_Export">
+   <property name="icon">
+    <iconset theme="document-export">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Export database</string>
    </property>
   </action>
  </widget>

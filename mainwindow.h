@@ -45,6 +45,18 @@ private slots:
 
     void on_Tree_Structure_itemSelectionChanged();
 
+    void on_Tree_Structure_customContextMenuRequested(const QPoint &pos);
+
+    void on_TreeStructure_CreateDatabase_triggered();
+
+    void on_TreeStructure_Disconnect_triggered();
+
+    void on_TreeStructure_Refresh_triggered();
+
+    void on_TreeStructure_ExpandAll_triggered();
+
+    void on_TreeStructure_CollapseAll_triggered();
+
 private:
     Ui::MainWindow *ui;
 

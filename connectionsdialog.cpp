@@ -191,12 +191,6 @@ void ConnectionsDialog::on_Button_Save_clicked()
 
     ResfreshConnectionsList();
 
-    this->settings.beginGroup("connections");
-
-    ui->List_Connections->item(this->settings.childGroups().indexOf(conectionName))->setSelected(true);
-
-    this->settings.endGroup();
-
     ui->Button_Remove->setEnabled(true);
     ui->Button_Connect->setEnabled(true);
 }
@@ -237,6 +231,10 @@ void ConnectionsDialog::on_List_Connections_itemSelectionChanged()
 {
     QListWidgetItem *item = ui->List_Connections->currentItem();
 
+    if (!item->isSelected()) {
+        return;
+    }
+
     ui->Button_Remove->setEnabled(true);
     ui->Button_Connect->setEnabled(true);
 
@@ -246,4 +244,5 @@ void ConnectionsDialog::on_List_Connections_itemSelectionChanged()
     ui->Input_Username->setText(this->settings.value("connections/" + item->text() + "/username").toString());
     ui->Input_Password->setText(this->settings.value("connections/" + item->text() + "/password").toString());
     ui->Input_Port->setValue(this->settings.value("connections/" + item->text() + "/port").toInt());
+
 }
