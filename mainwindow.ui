@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Visual SQL</string>
+   <string>Qt SQL Manager</string>
   </property>
   <property name="windowIcon">
    <iconset resource="assets.qrc">
@@ -438,7 +438,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>28</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="Menu_File">
@@ -457,7 +457,7 @@
     <addaction name="Menu_Help_MySQL_documentation"/>
     <addaction name="Menu_Help_MariaDB_documentation"/>
     <addaction name="separator"/>
-    <addaction name="Menu_Help_AboutVisual_SQL"/>
+    <addaction name="Menu_Help_AboutQt_SQL_Manager"/>
    </widget>
    <addaction name="Menu_File"/>
    <addaction name="Menu_Help"/>
@@ -505,7 +505,7 @@
    <addaction name="Menu_File_ExecuteSQL_file"/>
    <addaction name="Menu_File_ExecuteQuery"/>
    <addaction name="separator"/>
-   <addaction name="Menu_Help_AboutVisual_SQL"/>
+   <addaction name="Menu_Help_AboutQt_SQL_Manager"/>
    <addaction name="Menu_File_Exit"/>
   </widget>
   <action name="Menu_File_ExecuteSQL_file">
@@ -526,13 +526,16 @@
     <string>E&amp;xit</string>
    </property>
   </action>
-  <action name="Menu_Help_AboutVisual_SQL">
+  <action name="Menu_Help_AboutQt_SQL_Manager">
    <property name="icon">
     <iconset theme="help-about">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>&amp;About Visual SQL</string>
+    <string>&amp;About Qt SQL Manager</string>
+   </property>
+   <property name="toolTip">
+    <string>About Qt SQL Manager</string>
    </property>
   </action>
   <action name="Menu_Help_MySQL_documentation">

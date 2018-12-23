@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Connections - Visual SQL</string>
+   <string>Connections - Qt SQL Manager</string>
   </property>
   <property name="windowIcon">
    <iconset resource="assets.qrc">
