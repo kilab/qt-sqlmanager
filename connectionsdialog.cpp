@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QMessageBox>
+#include <QStandardItemModel>
 #include <QtSql>
 
 ConnectionsDialog::ConnectionsDialog(QWidget *parent) :
@@ -26,7 +27,19 @@ ConnectionsDialog::ConnectionsDialog(QWidget *parent) :
         ui->Input_Driver->addItem(SqlDriversString.at(i));
     }
 
-    ResfreshConnectionsList();
+    connectionsModel = new QStandardItemModel(ui->List_Connections);
+    settings.beginGroup("connections");
+
+    for (QString connectionName: settings.childGroups()) {
+        QStandardItem *connectionItem = new QStandardItem;
+        connectionItem->setText(connectionName);
+        connectionItem->setEditable(false);
+
+        connectionsModel->setItem(connectionsModel->rowCount(), 0, connectionItem);
+    }
+    settings.endGroup();
+
+    ui->List_Connections->setModel(connectionsModel);
 }
 
 ConnectionsDialog::~ConnectionsDialog()
@@ -57,7 +70,7 @@ void ConnectionsDialog::ConnectDatabase() {
         currentConnection.name = ui->Input_ConnectionName->text();
         currentConnection.hostname = ui->Input_Hostname->text();
 
-        this->close();
+        close();
     }
 }
 
@@ -134,25 +147,9 @@ void ConnectionsDialog::ClearForm() {
     ui->Input_Username->clear();
     ui->Input_Password->clear();
     ui->Input_Port->setValue(3306);
-}
 
-/**
- * Load from settings and reprint connections list.
- *
- * @brief ConnectionsDialog::ResfreshConnectionsList
- */
-void ConnectionsDialog::ResfreshConnectionsList() {
-    ui->Button_Remove->setEnabled(false);
-    ui->Button_Connect->setEnabled(false);
-    ui->List_Connections->clear();
-
-    this->settings.beginGroup("connections");
-
-    for (QString connectionName: this->settings.childGroups()) {
-        ui->List_Connections->addItem(connectionName);
-    }
-
-    this->settings.endGroup();
+    const QModelIndex emptyIndex;
+    ui->List_Connections->setCurrentIndex(emptyIndex);
 }
 
 void ConnectionsDialog::on_Button_Connect_clicked()
@@ -162,17 +159,21 @@ void ConnectionsDialog::on_Button_Connect_clicked()
 
 void ConnectionsDialog::on_Button_Remove_clicked()
 {
+    QModelIndex currentConnectionIndex = ui->List_Connections->currentIndex();
+    QVariant currentConnectionName = connectionsModel->data(currentConnectionIndex);
+
     QMessageBox::StandardButton confirmRemove;
+
     confirmRemove = QMessageBox::question(this, APP_NAME, tr("Are you sure you want remove selected connection?"), QMessageBox::Yes|QMessageBox::No);
 
     if (confirmRemove == QMessageBox::No) {
-      return;
+        return;
     }
 
-    this->settings.remove("connections/" + ui->Input_ConnectionName->text());
+    settings.remove("connections/" + currentConnectionName.toString());
+    connectionsModel->removeRow(currentConnectionIndex.row());
 
     ClearForm();
-    ResfreshConnectionsList();
 }
 
 void ConnectionsDialog::on_Button_Save_clicked()
@@ -181,21 +182,32 @@ void ConnectionsDialog::on_Button_Save_clicked()
         return;
     }
 
-    QString conectionName = ui->Input_ConnectionName->text();
+    QString connectionName = ui->Input_ConnectionName->text();
 
-    this->settings.setValue("connections/" + conectionName + "/driver", ui->Input_Driver->currentIndex());
-    this->settings.setValue("connections/" + conectionName + "/hostname", ui->Input_Hostname->text());
-    this->settings.setValue("connections/" + conectionName + "/username", ui->Input_Username->text());
-    this->settings.setValue("connections/" + conectionName + "/password", ui->Input_Password->text());
-    this->settings.setValue("connections/" + conectionName + "/port", ui->Input_Port->value());
+    settings.setValue("connections/" + connectionName + "/driver", ui->Input_Driver->currentIndex());
+    settings.setValue("connections/" + connectionName + "/hostname", ui->Input_Hostname->text());
+    settings.setValue("connections/" + connectionName + "/username", ui->Input_Username->text());
+    settings.setValue("connections/" + connectionName + "/password", ui->Input_Password->text());
+    settings.setValue("connections/" + connectionName + "/port", ui->Input_Port->value());
 
-    ResfreshConnectionsList();
 
-    this->settings.beginGroup("connections");
+    for(int r = 0; r < connectionsModel->rowCount(); ++r) {
+        QModelIndex index = connectionsModel->index(r, 0);
+        QVariant name = connectionsModel->data(index);
 
-    ui->List_Connections->item(this->settings.childGroups().indexOf(conectionName))->setSelected(true);
+        if (connectionName == name) {
+            return;
+        }
+    }
 
-    this->settings.endGroup();
+    settings.beginGroup("connections");
+
+    QStandardItem *connectionItem = new QStandardItem;
+    connectionItem->setText(connectionName);
+
+    connectionsModel->setItem(connectionsModel->rowCount(), 0, connectionItem);
+    ui->List_Connections->setCurrentIndex(connectionsModel->index(connectionsModel->rowCount() - 1, 0));
+    settings.endGroup();
 
     ui->Button_Remove->setEnabled(true);
     ui->Button_Connect->setEnabled(true);
@@ -203,8 +215,8 @@ void ConnectionsDialog::on_Button_Save_clicked()
 
 void ConnectionsDialog::on_Button_Add_clicked()
 {
+    ui->List_Connections->clearSelection();
     ClearForm();
-    ResfreshConnectionsList();
 }
 
 void ConnectionsDialog::on_Button_Test_clicked()
@@ -227,23 +239,22 @@ void ConnectionsDialog::on_Button_Test_clicked()
     messageDialog.exec();
 }
 
-void ConnectionsDialog::on_List_Connections_itemDoubleClicked(QListWidgetItem *item)
+void ConnectionsDialog::on_List_Connections_doubleClicked(const QModelIndex &index)
 {
-    on_List_Connections_itemSelectionChanged();
     ConnectDatabase();
 }
 
-void ConnectionsDialog::on_List_Connections_itemSelectionChanged()
+void ConnectionsDialog::on_List_Connections_clicked(const QModelIndex &index)
 {
-    QListWidgetItem *item = ui->List_Connections->currentItem();
+    QStandardItem *item = connectionsModel->item(index.row(), index.column());
 
     ui->Button_Remove->setEnabled(true);
     ui->Button_Connect->setEnabled(true);
 
     ui->Input_ConnectionName->setText(item->text());
-    ui->Input_Driver->setCurrentIndex(this->settings.value("connections/" + item->text() + "/driver").toInt());
-    ui->Input_Hostname->setText(this->settings.value("connections/" + item->text() + "/hostname").toString());
-    ui->Input_Username->setText(this->settings.value("connections/" + item->text() + "/username").toString());
-    ui->Input_Password->setText(this->settings.value("connections/" + item->text() + "/password").toString());
-    ui->Input_Port->setValue(this->settings.value("connections/" + item->text() + "/port").toInt());
+    ui->Input_Driver->setCurrentIndex(settings.value("connections/" + item->text() + "/driver").toInt());
+    ui->Input_Hostname->setText(settings.value("connections/" + item->text() + "/hostname").toString());
+    ui->Input_Username->setText(settings.value("connections/" + item->text() + "/username").toString());
+    ui->Input_Password->setText(settings.value("connections/" + item->text() + "/password").toString());
+    ui->Input_Port->setValue(settings.value("connections/" + item->text() + "/port").toInt());
 }

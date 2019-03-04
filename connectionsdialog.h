@@ -6,6 +6,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <QSettings>
+#include <QStandardItemModel>
 #include <QString>
 
 namespace Ui {
@@ -38,14 +39,16 @@ private slots:
 
     void on_Button_Test_clicked();
 
-    void on_List_Connections_itemDoubleClicked(QListWidgetItem *item);
+    void on_List_Connections_doubleClicked(const QModelIndex &index);
 
-    void on_List_Connections_itemSelectionChanged();
+    void on_List_Connections_clicked(const QModelIndex &index);
 
 private:
     Ui::ConnectionsDialog *ui;
 
     QSettings settings;
+
+    QStandardItemModel *connectionsModel;
 
     void ConnectDatabase();
 

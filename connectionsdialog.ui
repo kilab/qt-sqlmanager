@@ -39,7 +39,7 @@
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <widget class="QListWidget" name="List_Connections">
+         <widget class="QListView" name="List_Connections">
           <property name="minimumSize">
            <size>
             <width>100</width>
