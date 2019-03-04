@@ -44,11 +44,11 @@ private slots:
     void on_List_Connections_clicked(const QModelIndex &index);
 
 private:
+    QStandardItemModel *connectionsModel;
+
     Ui::ConnectionsDialog *ui;
 
     QSettings settings;
-
-    QStandardItemModel *connectionsModel;
 
     void ConnectDatabase();
 
