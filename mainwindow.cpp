@@ -84,7 +84,7 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
     ui->Input_Logs->append(tr("/* Connected to: %1 */").arg(currentConnection.hostname));
 
     QVector<QStringList> databases = dbQuery("SHOW DATABASES;");
-    QVector<QStringList> databaseTables = dbQuery("SELECT `table_schema`, `table_name` FROM `information_schema`.`tables`;");
+    QVector<QStringList> databaseTables = dbQuery("SELECT `table_schema`, `table_name` FROM `information_schema`.`tables` ORDER BY table_schema ASC, table_name ASC;");
     QFont parentItemFont;
     parentItemFont.setBold(true);
 
@@ -93,7 +93,7 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
     ui->Input_Logs->append("SELECT COLLATION_NAME FROM `information_schema`.`COLLATIONS` ORDER BY COLLATION_NAME ASC;");
 
     while (availableTableCollactionsQuery.next()) {
-        availableTableCollactions.append(availableTableCollactionsQuery.value(0).toString());
+        ui->Input_Table_Options_Collaction->addItem(availableTableCollactionsQuery.value(0).toString());
     }
 
     QSqlQuery availableTableEnginesQuery;
@@ -101,7 +101,7 @@ void MainWindow::connectToDatabase(CurrentConnection currentConnection) {
     ui->Input_Logs->append("SELECT ENGINE FROM `information_schema`.`ENGINES` ORDER BY ENGINE ASC;");
 
     while (availableTableEnginesQuery.next()) {
-        availableTableEngines.append(availableTableEnginesQuery.value(0).toString());
+        ui->Input_Table_Options_Engine->addItem(availableTableEnginesQuery.value(0).toString());
     }
 
     QTreeWidgetItem *parentItem = new QTreeWidgetItem();
@@ -199,7 +199,7 @@ void MainWindow::openConnectionsDialog()
     ConnectionsDialog connectionsDialog;
     connectionsDialog.exec();
 
-     MainWindow::connectToDatabase(connectionsDialog.currentConnection);;
+     MainWindow::connectToDatabase(connectionsDialog.currentConnection);
 }
 
 /**
@@ -232,7 +232,7 @@ void MainWindow::prepareLayout()
 
     ui->DataTable->verticalHeader()->setDefaultSectionSize(22);
     ui->DataTable->horizontalHeader()->setStretchLastSection(true);
-    ui->DataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    ui->DataTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     ui->DataTable_CustomQuery->verticalHeader()->setDefaultSectionSize(22);
     ui->DataTable_CustomQuery->horizontalHeader()->setStretchLastSection(true);
@@ -330,12 +330,32 @@ void MainWindow::on_Tree_Structure_itemSelectionChanged()
         currentTable = *new Table(selectedItem->text(0));
         currentTable.setDatabase(currentDatabase);
 
-        QString dataTableQuery = "SELECT * FROM `" + currentDatabase.getName() + "`.`" + currentTable.getName() + "` LIMIT 1000;";
+        QSqlQuery dataTableQuery;
+        QString dataTableQueryString = QString("SELECT * FROM `%1`.`%2` LIMIT 1000;")
+                .arg(currentDatabase.getName())
+                .arg(currentTable.getName());
+        dataTableQuery.exec(dataTableQueryString);
 
         dbModel.setQuery(dataTableQuery);
-        ui->Input_Logs->append(dataTableQuery);
+        ui->Input_Logs->append(dataTableQuery.lastQuery());
 
-        ui->Input_Table_Options_Collaction->addItems(availableTableCollactions);
-        ui->Input_Table_Options_Engine->addItems(availableTableEngines);
+        QSqlQuery tableInfoQuery;
+        QString tableInfoQueryQtring = QString("SELECT * FROM `information_schema`.`tables` WHERE table_schema = '%1' AND table_name = '%2'")
+                .arg(currentDatabase.getName())
+                .arg(currentTable.getName());
+        tableInfoQuery.exec(tableInfoQueryQtring);
+
+        while (tableInfoQuery.next()) {
+            qDebug() << this->ui->Input_Table_Options_Collaction->findText("utf8mb4_unicode_ci");
+            this->ui->Input_Table_Options_Name->setText(currentTable.getName());
+            this->ui->Input_Table_Options_Comment->setText(tableInfoQuery.value(20).toString());
+            this->ui->Input_Table_Options_Engine->setCurrentIndex(
+                this->ui->Input_Table_Options_Engine->findText(tableInfoQuery.value(4).toString())
+            );
+            this->ui->Input_Table_Options_Collaction->setCurrentIndex(
+                this->ui->Input_Table_Options_Collaction->findText(tableInfoQuery.value(17).toString())
+            );
+            this->ui->Input_Table_Options_AutoIncrement->setValue(tableInfoQuery.value(13).toInt());
+        }
     }
 }
