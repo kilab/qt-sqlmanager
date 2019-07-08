@@ -196,6 +196,16 @@
            <property name="currentIndex">
             <number>0</number>
            </property>
+           <widget class="QWidget" name="Tab_Database">
+            <attribute name="title">
+             <string>Database</string>
+            </attribute>
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="0" column="0">
+              <widget class="QTableWidget" name="Database_Structure_Table"/>
+             </item>
+            </layout>
+           </widget>
            <widget class="QWidget" name="Tab_Table">
             <attribute name="title">
              <string>Table</string>
@@ -438,7 +448,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="Menu_File">

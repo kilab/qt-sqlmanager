@@ -323,12 +323,14 @@ void MainWindow::on_Tree_Structure_itemSelectionChanged()
         currentDatabase = *new Database(selectedItem->text(0));
         currentDatabase.setHostname(currentConnection.hostname);
 
-        MainWindow::setWindowTitle(currentConnection.hostname + ": " + selectedItem->text(0) + " - " + APP_NAME);
+        MainWindow::setWindowTitle(currentConnection.hostname + ": " + currentDatabase.getName() + " - " + APP_NAME);
     }
 
     if (selectedItem->data(0, Qt::UserRole) == "table") {
         currentTable = *new Table(selectedItem->text(0));
         currentTable.setDatabase(currentDatabase);
+
+        MainWindow::setWindowTitle(currentConnection.hostname + ": " + currentDatabase.getName() + "." + currentTable.getName() + " - " + APP_NAME);
 
         QSqlQuery dataTableQuery;
         QString dataTableQueryString = QString("SELECT * FROM `%1`.`%2` LIMIT 1000;")
@@ -346,7 +348,6 @@ void MainWindow::on_Tree_Structure_itemSelectionChanged()
         tableInfoQuery.exec(tableInfoQueryQtring);
 
         while (tableInfoQuery.next()) {
-            qDebug() << this->ui->Input_Table_Options_Collaction->findText("utf8mb4_unicode_ci");
             this->ui->Input_Table_Options_Name->setText(currentTable.getName());
             this->ui->Input_Table_Options_Comment->setText(tableInfoQuery.value(20).toString());
             this->ui->Input_Table_Options_Engine->setCurrentIndex(
